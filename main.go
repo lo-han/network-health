@@ -41,7 +41,12 @@ func main() {
 	var devices []*entity.Device
 
 	for _, deviceIP := range *devicesIP {
-		ipv4Address := icmp.NewIPv4Address(deviceIP)
+		ipv4Address, err := icmp.NewIPv4Address(deviceIP)
+		if err != nil {
+			fmt.Printf("invalid ip address '%s", deviceIP)
+			return
+		}
+
 		name := nameGenerator.Generate()
 		devices = append(devices, entity.NewDevice(ipv4Address, name))
 	}

@@ -20,17 +20,39 @@ func RenameDevice(ctx iris.Context) {
 	bodyBytes, _ := ctx.GetBody()
 
 	err := json.Unmarshal(bodyBytes, &body)
+	if err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+
+		responseError := controllers.ErrorResponse{
+			ErrorMessage: "Bad request",
+			ErrorCode:    controllers.NetStatBadRequest,
+		}
+		ctx.JSON(responseError)
+		return
+	}
+
+	if body.NewName == "" {
+		ctx.StatusCode(iris.StatusBadRequest)
+
+		responseError := controllers.ErrorResponse{
+			ErrorMessage: "Bad request",
+			ErrorCode:    controllers.NetStatBadRequest,
+		}
+		ctx.JSON(responseError)
+		return
+	}
 
 	err = web.GetController().Rename(oldName, body.NewName)
 
 	if err != nil {
-		ctx.StatusCode(iris.StatusInternalServerError)
+		ctx.StatusCode(iris.StatusNotFound)
 
 		responseError := controllers.ErrorResponse{
 			ErrorMessage: err.Error(),
-			ErrorCode:    controllers.NetStatInternalError,
+			ErrorCode:    controllers.NetStatNotFound,
 		}
 		ctx.JSON(responseError)
+		return
 	}
 
 	ctx.StatusCode(iris.StatusNoContent)

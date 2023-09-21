@@ -6,6 +6,6 @@ import (
 
 var (
 	HealthErrorCannotRenameDevice = func(deviceName string) error {
-		return fmt.Errorf("Failed to rename %s device", deviceName)
+		return fmt.Errorf("Failed to rename '%s' device. Not found", deviceName)
 	}
 )
