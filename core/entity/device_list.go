@@ -15,6 +15,7 @@ type DeviceStore struct {
 func NewDeviceStore(listSize int, devices ...*Device) *DeviceStore {
 	deviceStore := &DeviceStore{}
 	deviceStore.size = listSize
+	deviceStore.devices = make(map[string]listDevice)
 
 	for _, device := range devices {
 		deviceStore.devices[device.name] = listDevice{
