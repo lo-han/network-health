@@ -1,4 +1,4 @@
-package networkhealth
+package main
 
 import (
 	"context"
@@ -52,7 +52,7 @@ func main() {
 	web.SetController(controller)
 
 	go func() {
-		if err := app.Run(iris.Addr(fmt.Sprintf(":%d", port))); err != nil {
+		if err := app.Run(iris.Addr(fmt.Sprintf(":%d", *port))); err != nil {
 			fmt.Printf("Error on starting http listener: %s", err.Error())
 		}
 	}()
