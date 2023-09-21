@@ -17,6 +17,21 @@ func NewController(store *entity.DeviceStore) *Controller {
 	}
 }
 
+func mapStatusToString(status entity.Status) string {
+	var statString string
+
+	switch status {
+	case entity.Loaded:
+		statString = "LOADED"
+	case entity.Online:
+		statString = "ONLINE"
+	case entity.Offline:
+		statString = "OFFLINE"
+	}
+
+	return statString
+}
+
 func (controller *Controller) Check(handler check.ConnectivityHandler) (response *check.DeviceStatus, err error) {
 	connection := check.NewConnectivity(handler)
 	response = new(check.DeviceStatus)
@@ -29,7 +44,7 @@ func (controller *Controller) Check(handler check.ConnectivityHandler) (response
 		response.Devices = append(response.Devices, check.Device{
 			Name:    device.GetName(),
 			Address: device.GetAddress(),
-			Status:  device.GetStatus(),
+			Status:  mapStatusToString(device.GetStatus()),
 		})
 
 		response.Datetime = time.Now()

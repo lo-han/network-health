@@ -1,14 +1,13 @@
 package check
 
 import (
-	"network-health/core/entity"
 	"time"
 )
 
 type Device struct {
-	Name    string        `json:"name"`
-	Address string        `json:"address"`
-	Status  entity.Status `json:"status"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Status  string `json:"status"`
 }
 
 type DeviceStatus struct {

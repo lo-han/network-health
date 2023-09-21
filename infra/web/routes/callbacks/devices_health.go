@@ -21,6 +21,7 @@ func GetDevicesHealth(ctx iris.Context) {
 			ErrorCode:    controllers.NetStatInternalError,
 		}
 		ctx.JSON(responseError)
+		return
 	}
 
 	ctx.StatusCode(iris.StatusOK)

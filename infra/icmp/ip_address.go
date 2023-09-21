@@ -11,11 +11,16 @@ type IPv4Address struct {
 	version string
 }
 
-func NewIPv4Address(address string) *IPv4Address {
-	return &IPv4Address{
-		addr:    address,
+func NewIPv4Address(address string) (*IPv4Address, error) {
+	ipv4address := &IPv4Address{
 		version: "IPv4",
 	}
+
+	if err := ipv4address.Set(address); err != nil {
+		return nil, err
+	}
+
+	return ipv4address, nil
 }
 
 func (ip *IPv4Address) Set(address string) (err error) {
@@ -36,6 +41,7 @@ func (ip *IPv4Address) Set(address string) (err error) {
 			return entity.HealthErrorInvalidAddress(ip.version)
 		}
 	}
+	ip.addr = address
 
 	return
 }
