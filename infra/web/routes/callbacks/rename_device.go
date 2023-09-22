@@ -23,10 +23,7 @@ func RenameDevice(ctx iris.Context) {
 	if err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 
-		responseError := controllers.ErrorResponse{
-			ErrorMessage: "Bad request",
-			ErrorCode:    controllers.NetStatBadRequest,
-		}
+		responseError := controllers.NewControllerError(controllers.NetStatBadRequest, "Bad request. Wrong type parameter")
 		ctx.JSON(responseError)
 		return
 	}
@@ -34,24 +31,16 @@ func RenameDevice(ctx iris.Context) {
 	if body.NewName == "" {
 		ctx.StatusCode(iris.StatusBadRequest)
 
-		responseError := controllers.ErrorResponse{
-			ErrorMessage: "Bad request",
-			ErrorCode:    controllers.NetStatBadRequest,
-		}
+		responseError := controllers.NewControllerError(controllers.NetStatBadRequest, "Bad request. Empty parameter")
 		ctx.JSON(responseError)
 		return
 	}
 
-	err = web.GetController().Rename(oldName, body.NewName)
+	response, err := web.Controller().Rename(oldName, body.NewName)
 
 	if err != nil {
 		ctx.StatusCode(iris.StatusNotFound)
-
-		responseError := controllers.ErrorResponse{
-			ErrorMessage: err.Error(),
-			ErrorCode:    controllers.NetStatNotFound,
-		}
-		ctx.JSON(responseError)
+		ctx.JSON(response)
 		return
 	}
 

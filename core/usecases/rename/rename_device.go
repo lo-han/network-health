@@ -2,30 +2,12 @@ package rename
 
 import "network-health/core/entity"
 
-type ConnectivityHandler interface {
-	PingDevice(device *entity.Device) (entity.Status, error)
-}
+func Rename(store *entity.DeviceStore, oldName, newName string) (err error) {
+	err = store.RenameDevice(oldName, newName)
 
-type Connectivity struct {
-	handler ConnectivityHandler
-}
-
-func NewConnectivity(handler ConnectivityHandler) *Connectivity {
-	return &Connectivity{
-		handler: handler,
-	}
-}
-
-func (conn *Connectivity) Check(devices entity.Iteration) (err error) {
-	var status entity.Status
-
-	for _, device := range devices {
-		status, err = conn.handler.PingDevice(device)
-		if err != nil {
-			break
-		}
-
-		device.SetStatus(status)
+	if err != nil {
+		err = HealthErrorCannotRenameDevice(oldName)
+		return
 	}
 
 	return

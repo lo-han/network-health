@@ -1,45 +1,28 @@
 package entity
 
-type Iteration []*Device
+type Iterator struct {
+	device []*Device
+}
 
-type listDevice struct {
-	id     string
-	device *Device
+func (i *Iterator) List() []*Device {
+	return i.device
 }
 
 type DeviceStore struct {
 	size    int
-	devices map[string]listDevice
+	devices map[string]*Device
 }
 
 func NewDeviceStore(listSize int, devices ...*Device) *DeviceStore {
 	deviceStore := &DeviceStore{}
 	deviceStore.size = listSize
-	deviceStore.devices = make(map[string]listDevice)
+	deviceStore.devices = make(map[string]*Device)
 
 	for _, device := range devices {
-		deviceStore.devices[device.name] = listDevice{
-			id:     device.address.Get(),
-			device: device,
-		}
+		deviceStore.devices[device.name] = device
 	}
 
 	return deviceStore
-}
-
-func (store *DeviceStore) AddDevices(devices ...*Device) error {
-	if len(store.devices) == store.size {
-		return HealthErrorFullDeviceList
-	}
-
-	for _, device := range devices {
-		store.devices[device.name] = listDevice{
-			id:     device.address.Get(),
-			device: device,
-		}
-	}
-
-	return nil
 }
 
 func (store *DeviceStore) RenameDevice(oldName string, newName string) (err error) {
@@ -50,7 +33,7 @@ func (store *DeviceStore) RenameDevice(oldName string, newName string) (err erro
 		return
 	}
 
-	renamedDevice.device.Rename(newName)
+	renamedDevice.Rename(newName)
 
 	delete(store.devices, oldName)
 
@@ -59,14 +42,27 @@ func (store *DeviceStore) RenameDevice(oldName string, newName string) (err erro
 	return
 }
 
-func (store *DeviceStore) IterateDevices() (devices Iteration) {
-	for _, listDevice := range store.devices {
-		devices = append(devices, listDevice.device)
+func (store *DeviceStore) IterateDevices() (iteration *Iterator) {
+	iteration = new(Iterator)
+
+	for _, device := range store.devices {
+		iteration.device = append(iteration.device, device)
 	}
 
 	return
 }
 
+// func (store *DeviceStore) AddDevices(devices ...*Device) error {
+// 	if len(store.devices) == store.size {
+// 		return HealthErrorFullDeviceList
+// 	}
+
+// 	for _, device := range devices {
+// 		store.devices[device.name] = device
+// 	}
+
+// 	return nil
+// }
 // func (store *DeviceStore) RemoveDeviceByName(name string) error {
 // 	if len(store.devices) == 0 {
 // 		return HealthErrorEmptyDeviceList

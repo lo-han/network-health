@@ -27,20 +27,20 @@ func NewDevice(address Address, name string) *Device {
 	}
 }
 
-func (device *Device) GetName() string {
+func (device *Device) Name() string {
 	return device.name
-}
-
-func (device *Device) GetAddress() string {
-	return device.address.Get()
-}
-
-func (device *Device) GetStatus() Status {
-	return device.status
 }
 
 func (device *Device) Rename(newName string) {
 	device.name = newName
+}
+
+func (device *Device) Address() string {
+	return device.address.Get()
+}
+
+func (device *Device) Status() Status {
+	return device.status
 }
 
 func (device *Device) SetStatus(status Status) {
