@@ -29,9 +29,9 @@ func (logger *STDOutLogger) Error(message string) {
 }
 
 func (logger *STDOutLogger) Fatal(message string) {
-	fmt.Printf("[%s] %s", logger.errorPrefix, message)
+	fmt.Printf("[%s] %s", logger.fatalPrefix, message)
 }
 
 func (logger *STDOutLogger) Info(message string) {
-	fmt.Printf("[%s] %s", logger.errorPrefix, message)
+	fmt.Printf("[%s] %s", logger.infoPrefix, message)
 }

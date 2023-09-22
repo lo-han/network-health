@@ -1,7 +1,6 @@
 package icmp
 
 import (
-	"errors"
 	"fmt"
 	entity "network-health/core/entity/device"
 	"network-health/core/entity/logs"
@@ -20,7 +19,6 @@ func NewICMPConnectivityHandler() *ICMPConnectivityHandler {
 func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus entity.Status) {
 	pinger, err := ping.NewPinger(device.Address())
 
-	err = errors.New("text")
 	if err != nil {
 		deviceStatus = entity.Offline
 		logs.Gateway().Error(fmt.Sprintf(check.HealthErrorCannotConnectToServer("ICMP", err.Error()).Error()))
@@ -43,7 +41,7 @@ func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus e
 			stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt))
 	}
 
-	logs.Gateway().Info(fmt.Sprintf("\nPING %s (%s):", pinger.Addr(), pinger.IPAddr()))
+	logs.Gateway().Info(fmt.Sprintf("PING %s (%s):", pinger.Addr(), pinger.IPAddr()))
 	err = pinger.Run()
 	if err != nil {
 		deviceStatus = entity.Offline
