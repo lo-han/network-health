@@ -10,7 +10,7 @@ import (
 
 	"network-health/controllers"
 	device "network-health/core/entity/device"
-	store "network-health/core/entity/device_list"
+	store "network-health/core/entity/device_store"
 	"network-health/core/entity/logs"
 	"network-health/infra/icmp"
 	"network-health/infra/stdout"
@@ -56,7 +56,7 @@ func main() {
 		devices = append(devices, device.NewDevice(ipv4Address, name))
 	}
 
-	store := store.NewDeviceStore(len(devices), devices...)
+	store, _ := store.NewDeviceStore(devices...)
 	controller := controllers.NewController(store)
 
 	web.SetController(controller)
