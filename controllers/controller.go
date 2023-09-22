@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"network-health/core/entity"
+	entity "network-health/core/entity/device_list"
 	check_usecase "network-health/core/usecases/check"
 	rename_usecase "network-health/core/usecases/rename"
 

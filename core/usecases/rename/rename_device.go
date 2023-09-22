@@ -1,6 +1,8 @@
 package rename
 
-import "network-health/core/entity"
+import (
+	entity "network-health/core/entity/device_list"
+)
 
 func Rename(store *entity.DeviceStore, oldName, newName string) (err error) {
 	err = store.RenameDevice(oldName, newName)
