@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	entity "network-health/core/entity/device_store"
+	connect "network-health/core/entity/connectivity"
+	store "network-health/core/entity/device_store"
 	check_usecase "network-health/core/usecases/check"
 	rename_usecase "network-health/core/usecases/rename"
 
@@ -9,20 +10,20 @@ import (
 )
 
 type Controller struct {
-	store *entity.DeviceStore
+	store *store.DeviceStore
 }
 
-func NewController(store *entity.DeviceStore) *Controller {
+func NewController(store *store.DeviceStore) *Controller {
 	return &Controller{
 		store: store,
 	}
 }
 
-func (controller *Controller) Check(handler check_usecase.ConnectivityHandler) (response *ControllerResponse, err error) {
+func (controller *Controller) Check(handler connect.ConnectivityHandler) (response *ControllerResponse, err error) {
 	var status *check_usecase.DeviceStatus
 	connection := check_usecase.NewConnectivity(handler)
 
-	status = connection.Check(controller.store, handler)
+	status = connection.Check(controller.store)
 
 	response = NewControllerResponse(NetStatOK, structs.Map(status))
 

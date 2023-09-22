@@ -1,26 +1,23 @@
 package check
 
 import (
+	connect "network-health/core/entity/connectivity"
 	device "network-health/core/entity/device"
 	store "network-health/core/entity/device_store"
 	"time"
 )
 
-type ConnectivityHandler interface {
-	PingDevice(device *device.Device) device.Status
-}
-
 type Connectivity struct {
-	handler ConnectivityHandler
+	handler connect.ConnectivityHandler
 }
 
-func NewConnectivity(handler ConnectivityHandler) *Connectivity {
+func NewConnectivity(handler connect.ConnectivityHandler) *Connectivity {
 	return &Connectivity{
 		handler: handler,
 	}
 }
 
-func (conn *Connectivity) Check(store *store.DeviceStore, handler ConnectivityHandler) (response *DeviceStatus) {
+func (conn *Connectivity) Check(store *store.DeviceStore) (response *DeviceStatus) {
 	var status device.Status
 	response = new(DeviceStatus)
 
