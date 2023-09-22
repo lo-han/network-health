@@ -16,21 +16,21 @@ func (ip *mockAddress) Get() (address string) {
 	return "address"
 }
 
-type ConnHandlerOnlineMock struct{}
+type connHandlerOnlineMock struct{}
 
-func (ConnHandlerOnlineMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
+func (connHandlerOnlineMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
 	return device.Online
 }
 
-type ConnHandlerOfflineMock struct{}
+type connHandlerOfflineMock struct{}
 
-func (ConnHandlerOfflineMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
+func (connHandlerOfflineMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
 	return device.Offline
 }
 
-type ConnHandlerLoadedMock struct{}
+type connHandlerLoadedMock struct{}
 
-func (ConnHandlerLoadedMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
+func (connHandlerLoadedMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
 	return device.Loaded
 }
 
@@ -45,17 +45,17 @@ func Test_CheckUsecase_Check(t *testing.T) {
 	}{
 		{
 			name:   "Succesfull online status check",
-			conn:   NewConnectivity(ConnHandlerOnlineMock{}),
+			conn:   NewConnectivity(connHandlerOnlineMock{}),
 			status: "ONLINE",
 		},
 		{
 			name:   "Succesfull offline status check",
-			conn:   NewConnectivity(ConnHandlerOfflineMock{}),
+			conn:   NewConnectivity(connHandlerOfflineMock{}),
 			status: "OFFLINE",
 		},
 		{
 			name:   "Succesfull loeaded status check",
-			conn:   NewConnectivity(ConnHandlerLoadedMock{}),
+			conn:   NewConnectivity(connHandlerLoadedMock{}),
 			status: "LOADED",
 		},
 	}
