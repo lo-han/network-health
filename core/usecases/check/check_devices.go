@@ -2,7 +2,7 @@ package check
 
 import (
 	device "network-health/core/entity/device"
-	store "network-health/core/entity/device_list"
+	store "network-health/core/entity/device_store"
 	"time"
 )
 
