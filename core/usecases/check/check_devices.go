@@ -1,9 +1,13 @@
 package check
 
-import "network-health/core/entity"
+import (
+	device "network-health/core/entity/device"
+	store "network-health/core/entity/device_list"
+	"time"
+)
 
 type ConnectivityHandler interface {
-	PingDevice(device *entity.Device) (entity.Status, error)
+	PingDevice(device *device.Device) device.Status
 }
 
 type Connectivity struct {
@@ -16,17 +20,40 @@ func NewConnectivity(handler ConnectivityHandler) *Connectivity {
 	}
 }
 
-func (conn *Connectivity) Check(devices entity.Iteration) (err error) {
-	var status entity.Status
+func (conn *Connectivity) Check(store *store.DeviceStore, handler ConnectivityHandler) (response *DeviceStatus) {
+	var status device.Status
+	response = new(DeviceStatus)
 
-	for _, device := range devices {
-		status, err = conn.handler.PingDevice(device)
-		if err != nil {
-			break
-		}
+	devices := store.IterateDevices()
+
+	for _, device := range devices.List() {
+		status = conn.handler.PingDevice(device)
 
 		device.SetStatus(status)
+
+		response.Devices = append(response.Devices, Device{
+			Name:    device.Name(),
+			Address: device.Address(),
+			Status:  mapStatusToString(device.Status()),
+		})
+
+		response.Datetime = time.Now()
 	}
 
 	return
+}
+
+func mapStatusToString(status device.Status) string {
+	var statString string
+
+	switch status {
+	case device.Loaded:
+		statString = "LOADED"
+	case device.Online:
+		statString = "ONLINE"
+	case device.Offline:
+		statString = "OFFLINE"
+	}
+
+	return statString
 }

@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"network-health/core/entity"
-	"network-health/core/usecases/check"
-	"network-health/core/usecases/rename"
-	"time"
+	entity "network-health/core/entity/device_list"
+	check_usecase "network-health/core/usecases/check"
+	rename_usecase "network-health/core/usecases/rename"
+
+	"github.com/fatih/structs"
 )
 
 type Controller struct {
@@ -17,49 +18,26 @@ func NewController(store *entity.DeviceStore) *Controller {
 	}
 }
 
-func mapStatusToString(status entity.Status) string {
-	var statString string
+func (controller *Controller) Check(handler check_usecase.ConnectivityHandler) (response *ControllerResponse, err error) {
+	var status *check_usecase.DeviceStatus
+	connection := check_usecase.NewConnectivity(handler)
 
-	switch status {
-	case entity.Loaded:
-		statString = "LOADED"
-	case entity.Online:
-		statString = "ONLINE"
-	case entity.Offline:
-		statString = "OFFLINE"
-	}
+	status = connection.Check(controller.store, handler)
 
-	return statString
-}
-
-func (controller *Controller) Check(handler check.ConnectivityHandler) (response *check.DeviceStatus, err error) {
-	connection := check.NewConnectivity(handler)
-	response = new(check.DeviceStatus)
-
-	devices := controller.store.IterateDevices()
-
-	err = connection.Check(devices)
-
-	for _, device := range devices {
-		response.Devices = append(response.Devices, check.Device{
-			Name:    device.GetName(),
-			Address: device.GetAddress(),
-			Status:  mapStatusToString(device.GetStatus()),
-		})
-
-		response.Datetime = time.Now()
-	}
+	response = NewControllerResponse(NetStatOK, structs.Map(status))
 
 	return
 }
 
-func (controller *Controller) Rename(oldName, newName string) (err error) {
-	err = controller.store.RenameDevice(oldName, newName)
+func (controller *Controller) Rename(oldName, newName string) (response *ControllerResponse, err error) {
+	err = rename_usecase.Rename(controller.store, oldName, newName)
 
 	if err != nil {
-		err = rename.HealthErrorCannotRenameDevice(oldName)
+		response = NewControllerError(NetStatNotFound, err.Error())
 		return
 	}
+
+	response = NewControllerResponse(NetStatNoContent, map[string]interface{}{})
 
 	return
 }

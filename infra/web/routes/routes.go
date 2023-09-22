@@ -20,10 +20,7 @@ func (r *Router) Route(i *iris.Application) {
 	i.Handle("ALL", "/*", func(ctx iris.Context) {
 		ctx.StatusCode(iris.StatusNotFound)
 
-		responseError := controllers.ErrorResponse{
-			ErrorMessage: "Route not found",
-			ErrorCode:    controllers.NetStatNotFound,
-		}
+		responseError := controllers.NewControllerError(controllers.NetStatNotFound, "Route not found")
 		ctx.JSON(responseError)
 	})
 
@@ -42,10 +39,7 @@ func CheckBodySupport(ctx iris.Context) {
 	contentType := ctx.GetHeader("Content-Type")
 
 	if !lo.Contains([]string{"application/json"}, contentType) {
-		responseError := controllers.ErrorResponse{
-			ErrorMessage: "Unsupported body",
-			ErrorCode:    controllers.NetStatUnsupportedRequest,
-		}
+		responseError := controllers.NewControllerError(controllers.NetStatUnsupportedRequest, "Unsupported body")
 		ctx.JSON(responseError)
 		ctx.StatusCode(iris.StatusUnsupportedMediaType)
 		return
@@ -54,10 +48,7 @@ func CheckBodySupport(ctx iris.Context) {
 	body, err := io.ReadAll(ctx.Request().Body)
 	if err == nil {
 		if !json.Valid(body) || !strings.HasPrefix(string(body), "{") || !strings.HasSuffix(string(body), "}") {
-			responseError := controllers.ErrorResponse{
-				ErrorMessage: "Unsupported body",
-				ErrorCode:    controllers.NetStatUnsupportedRequest,
-			}
+			responseError := controllers.NewControllerError(controllers.NetStatUnsupportedRequest, "Unsupported body")
 			ctx.JSON(responseError)
 			ctx.StatusCode(iris.StatusUnsupportedMediaType)
 			return
