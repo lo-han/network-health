@@ -1,4 +1,4 @@
-package device_list
+package device_store
 
 import "network-health/core/entity/device"
 
@@ -15,16 +15,22 @@ type DeviceStore struct {
 	devices map[string]*device.Device
 }
 
-func NewDeviceStore(listSize int, devices ...*device.Device) *DeviceStore {
+func NewDeviceStore(devices ...*device.Device) (*DeviceStore, error) {
 	deviceStore := &DeviceStore{}
-	deviceStore.size = listSize
+	deviceStore.size = len(devices)
 	deviceStore.devices = make(map[string]*device.Device)
 
 	for _, device := range devices {
+		if _, alreadyExists := deviceStore.devices[device.Name()]; alreadyExists {
+			return nil, HealthErrorDuplicatedName
+		}
+		if device.Name() == "" {
+			return nil, HealthErrorInvalidName
+		}
 		deviceStore.devices[device.Name()] = device
 	}
 
-	return deviceStore
+	return deviceStore, nil
 }
 
 func (store *DeviceStore) RenameDevice(oldName string, newName string) (err error) {
@@ -33,6 +39,14 @@ func (store *DeviceStore) RenameDevice(oldName string, newName string) (err erro
 	if !found {
 		err = HealthErrorDeviceNotFound
 		return
+	}
+
+	if newName == "" {
+		return HealthErrorInvalidName
+	}
+
+	if _, alreadyExists := store.devices[newName]; alreadyExists {
+		return HealthErrorDuplicatedName
 	}
 
 	renamedDevice.Rename(newName)
