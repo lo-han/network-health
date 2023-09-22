@@ -9,8 +9,11 @@ import (
 	"time"
 
 	"network-health/controllers"
-	"network-health/core/entity"
+	device "network-health/core/entity/device"
+	store "network-health/core/entity/device_list"
+	"network-health/core/entity/logs"
 	"network-health/infra/icmp"
+	"network-health/infra/stdout"
 	"network-health/infra/web"
 	"network-health/infra/web/routes"
 
@@ -31,6 +34,8 @@ func main() {
 	mainCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	logs.SetLogger(stdout.NewSTDOutLogger())
+
 	router := routes.Router{}
 	app := iris.New()
 	router.Route(app)
@@ -38,27 +43,27 @@ func main() {
 	seed := time.Now().UTC().UnixNano()
 	nameGenerator := namegenerator.NewNameGenerator(seed)
 
-	var devices []*entity.Device
+	var devices []*device.Device
 
 	for _, deviceIP := range *devicesIP {
 		ipv4Address, err := icmp.NewIPv4Address(deviceIP)
 		if err != nil {
-			fmt.Printf("invalid ip address '%s", deviceIP)
+			logs.Gateway().Fatal(fmt.Sprintf("Error initializing app: invalid ip address '%s", deviceIP))
 			return
 		}
 
 		name := nameGenerator.Generate()
-		devices = append(devices, entity.NewDevice(ipv4Address, name))
+		devices = append(devices, device.NewDevice(ipv4Address, name))
 	}
 
-	store := entity.NewDeviceStore(len(devices), devices...)
+	store := store.NewDeviceStore(len(devices), devices...)
 	controller := controllers.NewController(store)
 
 	web.SetController(controller)
 
 	go func() {
 		if err := app.Run(iris.Addr(fmt.Sprintf(":%d", *port))); err != nil {
-			fmt.Printf("Error on starting http listener: %s", err.Error())
+			logs.Gateway().Fatal(fmt.Sprintf("Error on starting http listener: %s", err.Error()))
 		}
 	}()
 
@@ -72,6 +77,6 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
-		fmt.Printf("exit reason: %s \n", err)
+		logs.Gateway().Fatal(fmt.Sprintf("exit reason: %s \n", err))
 	}
 }
