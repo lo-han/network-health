@@ -7,9 +7,24 @@ import (
 	"network-health/core/usecases/rename"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/fatih/structs"
 )
+
+type timeMock struct {
+	now time.Time
+}
+
+func newTimeMock() *timeMock {
+	return &timeMock{
+		now: time.Now(),
+	}
+}
+
+func (mock *timeMock) Now() time.Time {
+	return mock.now
+}
 
 type mockAddress struct{}
 
@@ -28,6 +43,7 @@ func (connHandlerMock) PingDevice(dev *device.Device) (deviceStatus device.Statu
 }
 
 func Test_Controller_Check(t *testing.T) {
+	timeNow := newTimeMock()
 	deviceStoreTest, _ := device_store.NewDeviceStore(device.NewDevice(&mockAddress{}, "device"))
 	content := structs.Map(check.DeviceStatus{
 		Devices: []check.Device{
@@ -37,6 +53,7 @@ func Test_Controller_Check(t *testing.T) {
 				Status:  "ONLINE",
 			},
 		},
+		Datetime: timeNow.Now(),
 	})
 
 	testCases := []struct {
@@ -46,7 +63,7 @@ func Test_Controller_Check(t *testing.T) {
 	}{
 		{
 			name:       "Succesfull check",
-			controller: NewController(deviceStoreTest),
+			controller: NewController(deviceStoreTest, timeNow),
 			response: NewControllerResponse(
 				NetStatOK,
 				content,
@@ -69,7 +86,9 @@ func Test_Controller_Check(t *testing.T) {
 	}
 }
 func Test_Controller_Rename(t *testing.T) {
-	failError := rename.HealthErrorCannotRenameDevice("doesnt_exists", device_store.HealthErrorDeviceNotFound.Error())
+	failErrorNotFound := rename.HealthErrorCannotRenameDevice("doesnt_exists", device_store.HealthErrorDeviceNotFound.Error())
+	failErrorBadRequestInvalid := rename.HealthErrorCannotRenameDevice("device", device_store.HealthErrorInvalidName.Error())
+	failErrorBadRequestDuplicated := rename.HealthErrorCannotRenameDevice("device", device_store.HealthErrorDuplicatedName.Error())
 
 	testCases := []struct {
 		name     string
@@ -94,18 +113,44 @@ func Test_Controller_Rename(t *testing.T) {
 			newName: "new_device",
 			response: NewControllerError(
 				NetStatNotFound,
-				failError.Error(),
+				failErrorNotFound.Error(),
 			),
-			err: failError,
+			err: failErrorNotFound,
+		},
+		{
+			name:    "Failed to rename invalid device name",
+			oldName: "device",
+			newName: "",
+			response: NewControllerError(
+				NetStatBadRequest,
+				failErrorBadRequestInvalid.Error(),
+			),
+			err: failErrorBadRequestInvalid,
+		},
+		{
+			name:    "Failed to rename duplicated device name",
+			oldName: "device",
+			newName: "device_2",
+			response: NewControllerError(
+				NetStatBadRequest,
+				failErrorBadRequestDuplicated.Error(),
+			),
+			err: failErrorBadRequestDuplicated,
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			deviceStoreTest, _ := device_store.NewDeviceStore(device.NewDevice(&mockAddress{}, "device"))
-			controller := NewController(deviceStoreTest)
+			deviceStoreTest, _ := device_store.NewDeviceStore(device.NewDevice(&mockAddress{}, "device"), device.NewDevice(&mockAddress{}, "device_2"))
+			controller := NewController(deviceStoreTest, newTimeMock())
 
 			response, err := controller.Rename(testCase.oldName, testCase.newName)
+
+			if err == nil {
+				if err != testCase.err {
+					t.Error("Test_Controller_Rename() failed on success test case")
+				}
+			}
 
 			if err != nil {
 				if err.Error() != testCase.err.Error() {
