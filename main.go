@@ -43,7 +43,7 @@ func main() {
 	for _, deviceIP := range *devicesIP {
 		ipv4Address, err := icmp.NewIPv4Address(deviceIP)
 		if err != nil {
-			fmt.Printf("invalid ip address '%s", deviceIP)
+			fmt.Printf("Error initializing app: invalid ip address '%s", deviceIP)
 			return
 		}
 

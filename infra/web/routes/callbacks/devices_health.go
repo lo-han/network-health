@@ -1,7 +1,6 @@
 package callbacks
 
 import (
-	"network-health/controllers"
 	"network-health/infra/icmp"
 	"network-health/infra/web"
 
@@ -11,16 +10,11 @@ import (
 func GetDevicesHealth(ctx iris.Context) {
 	icmpConnectionHandler := icmp.NewICMPConnectivityHandler()
 
-	response, err := web.GetController().Check(icmpConnectionHandler)
+	response, err := web.Controller().Check(icmpConnectionHandler)
 
 	if err != nil {
 		ctx.StatusCode(iris.StatusInternalServerError)
-
-		responseError := controllers.ErrorResponse{
-			ErrorMessage: err.Error(),
-			ErrorCode:    controllers.NetStatInternalError,
-		}
-		ctx.JSON(responseError)
+		ctx.JSON(response)
 		return
 	}
 

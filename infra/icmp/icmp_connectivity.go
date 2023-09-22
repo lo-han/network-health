@@ -16,7 +16,7 @@ func NewICMPConnectivityHandler() *ICMPConnectivityHandler {
 }
 
 func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus entity.Status, err error) {
-	pinger, err := ping.NewPinger(device.GetAddress())
+	pinger, err := ping.NewPinger(device.Address())
 
 	if err != nil {
 		deviceStatus = entity.Offline
@@ -33,7 +33,7 @@ func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus e
 
 	pinger.OnFinish = func(stats *ping.Statistics) {
 		if stats.PacketsSent != stats.PacketsRecv {
-			deviceStatus = entity.Offline
+			deviceStatus = entity.Loaded
 		}
 
 		fmt.Printf("\tround-trip min/avg/max/stddev = %v/%v/%v/%v\n",

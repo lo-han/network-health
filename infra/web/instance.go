@@ -8,6 +8,6 @@ func SetController(controller *controllers.Controller) {
 	instantiatedController = controller
 }
 
-func GetController() *controllers.Controller {
+func Controller() *controllers.Controller {
 	return instantiatedController
 }
