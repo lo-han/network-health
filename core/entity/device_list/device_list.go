@@ -1,25 +1,27 @@
-package entity
+package device_list
+
+import "network-health/core/entity/device"
 
 type Iterator struct {
-	device []*Device
+	device []*device.Device
 }
 
-func (i *Iterator) List() []*Device {
+func (i *Iterator) List() []*device.Device {
 	return i.device
 }
 
 type DeviceStore struct {
 	size    int
-	devices map[string]*Device
+	devices map[string]*device.Device
 }
 
-func NewDeviceStore(listSize int, devices ...*Device) *DeviceStore {
+func NewDeviceStore(listSize int, devices ...*device.Device) *DeviceStore {
 	deviceStore := &DeviceStore{}
 	deviceStore.size = listSize
-	deviceStore.devices = make(map[string]*Device)
+	deviceStore.devices = make(map[string]*device.Device)
 
 	for _, device := range devices {
-		deviceStore.devices[device.name] = device
+		deviceStore.devices[device.Name()] = device
 	}
 
 	return deviceStore
@@ -52,7 +54,7 @@ func (store *DeviceStore) IterateDevices() (iteration *Iterator) {
 	return
 }
 
-// func (store *DeviceStore) AddDevices(devices ...*Device) error {
+// func (store *DeviceStore) AddDevices(devices ...*device.Device) error {
 // 	if len(store.devices) == store.size {
 // 		return HealthErrorFullDeviceList
 // 	}

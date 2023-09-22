@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"network-health/controllers"
-	"network-health/core/entity"
+	device "network-health/core/entity/device"
+	store "network-health/core/entity/device_list"
 	"network-health/infra/icmp"
 	"network-health/infra/web"
 	"network-health/infra/web/routes"
@@ -38,7 +39,7 @@ func main() {
 	seed := time.Now().UTC().UnixNano()
 	nameGenerator := namegenerator.NewNameGenerator(seed)
 
-	var devices []*entity.Device
+	var devices []*device.Device
 
 	for _, deviceIP := range *devicesIP {
 		ipv4Address, err := icmp.NewIPv4Address(deviceIP)
@@ -48,10 +49,10 @@ func main() {
 		}
 
 		name := nameGenerator.Generate()
-		devices = append(devices, entity.NewDevice(ipv4Address, name))
+		devices = append(devices, device.NewDevice(ipv4Address, name))
 	}
 
-	store := entity.NewDeviceStore(len(devices), devices...)
+	store := store.NewDeviceStore(len(devices), devices...)
 	controller := controllers.NewController(store)
 
 	web.SetController(controller)

@@ -3,7 +3,7 @@ package icmp
 import (
 	"errors"
 	"fmt"
-	"network-health/core/entity"
+	entity "network-health/core/entity/device"
 	"network-health/core/usecases/check"
 	"time"
 

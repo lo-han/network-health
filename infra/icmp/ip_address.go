@@ -1,7 +1,7 @@
 package icmp
 
 import (
-	"network-health/core/entity"
+	entity "network-health/core/entity/device"
 	"strconv"
 	"strings"
 )

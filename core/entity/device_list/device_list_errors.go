@@ -1,4 +1,4 @@
-package entity
+package device_list
 
 import "errors"
 
