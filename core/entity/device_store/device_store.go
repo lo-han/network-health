@@ -41,6 +41,10 @@ func (store *DeviceStore) RenameDevice(oldName string, newName string) (err erro
 		return
 	}
 
+	if newName == "" {
+		return HealthErrorInvalidName
+	}
+
 	if _, alreadyExists := store.devices[newName]; alreadyExists {
 		return HealthErrorDuplicatedName
 	}
