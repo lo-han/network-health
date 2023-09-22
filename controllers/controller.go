@@ -22,12 +22,7 @@ func (controller *Controller) Check(handler check_usecase.ConnectivityHandler) (
 	var status *check_usecase.DeviceStatus
 	connection := check_usecase.NewConnectivity(handler)
 
-	status, err = connection.Check(controller.store, handler)
-
-	if err != nil {
-		response = NewControllerError(NetStatInternalError, err.Error())
-		return
-	}
+	status = connection.Check(controller.store, handler)
 
 	response = NewControllerResponse(NetStatOK, structs.Map(status))
 

@@ -6,7 +6,7 @@ import (
 )
 
 type ConnectivityHandler interface {
-	PingDevice(device *entity.Device) (entity.Status, error)
+	PingDevice(device *entity.Device) entity.Status
 }
 
 type Connectivity struct {
@@ -19,17 +19,14 @@ func NewConnectivity(handler ConnectivityHandler) *Connectivity {
 	}
 }
 
-func (conn *Connectivity) Check(store *entity.DeviceStore, handler ConnectivityHandler) (response *DeviceStatus, err error) {
+func (conn *Connectivity) Check(store *entity.DeviceStore, handler ConnectivityHandler) (response *DeviceStatus) {
 	var status entity.Status
 	response = new(DeviceStatus)
 
 	devices := store.IterateDevices()
 
 	for _, device := range devices.List() {
-		status, err = conn.handler.PingDevice(device)
-		if err != nil {
-			break
-		}
+		status = conn.handler.PingDevice(device)
 
 		device.SetStatus(status)
 
