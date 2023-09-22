@@ -10,9 +10,10 @@ import (
 
 	"network-health/controllers"
 	device "network-health/core/entity/device"
-	store "network-health/core/entity/device_list"
+	store "network-health/core/entity/device_store"
 	"network-health/core/entity/logs"
-	"network-health/infra/icmp"
+	time_usecase "network-health/core/usecases/time"
+	"network-health/infra/ipv4"
 	"network-health/infra/stdout"
 	"network-health/infra/web"
 	"network-health/infra/web/routes"
@@ -46,7 +47,7 @@ func main() {
 	var devices []*device.Device
 
 	for _, deviceIP := range *devicesIP {
-		ipv4Address, err := icmp.NewIPv4Address(deviceIP)
+		ipv4Address, err := ipv4.NewIPv4Address(deviceIP)
 		if err != nil {
 			logs.Gateway().Fatal(fmt.Sprintf("Error initializing app: invalid ip address '%s", deviceIP))
 			return
@@ -56,8 +57,8 @@ func main() {
 		devices = append(devices, device.NewDevice(ipv4Address, name))
 	}
 
-	store := store.NewDeviceStore(len(devices), devices...)
-	controller := controllers.NewController(store)
+	store, _ := store.NewDeviceStore(devices...)
+	controller := controllers.NewController(store, &time_usecase.GoTime{})
 
 	web.SetController(controller)
 

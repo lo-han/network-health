@@ -1,26 +1,25 @@
 package check
 
 import (
+	connect "network-health/core/entity/connectivity"
 	device "network-health/core/entity/device"
-	store "network-health/core/entity/device_list"
-	"time"
+	store "network-health/core/entity/device_store"
+	time_usecase "network-health/core/usecases/time"
 )
 
-type ConnectivityHandler interface {
-	PingDevice(device *device.Device) device.Status
-}
-
 type Connectivity struct {
-	handler ConnectivityHandler
+	handler connect.ConnectivityHandler
+	time    time_usecase.Time
 }
 
-func NewConnectivity(handler ConnectivityHandler) *Connectivity {
+func NewConnectivity(handler connect.ConnectivityHandler, time time_usecase.Time) *Connectivity {
 	return &Connectivity{
 		handler: handler,
+		time:    time,
 	}
 }
 
-func (conn *Connectivity) Check(store *store.DeviceStore, handler ConnectivityHandler) (response *DeviceStatus) {
+func (conn *Connectivity) Check(store *store.DeviceStore) (response *DeviceStatus) {
 	var status device.Status
 	response = new(DeviceStatus)
 
@@ -37,7 +36,7 @@ func (conn *Connectivity) Check(store *store.DeviceStore, handler ConnectivityHa
 			Status:  mapStatusToString(device.Status()),
 		})
 
-		response.Datetime = time.Now()
+		response.Datetime = conn.time.Now()
 	}
 
 	return

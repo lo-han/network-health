@@ -1,4 +1,4 @@
-package icmp
+package ipv4
 
 import (
 	entity "network-health/core/entity/device"
