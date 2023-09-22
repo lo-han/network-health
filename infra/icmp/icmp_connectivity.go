@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	entity "network-health/core/entity/device"
+	"network-health/core/entity/logs"
 	"network-health/core/usecases/check"
 	"time"
 
@@ -22,15 +23,15 @@ func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus e
 	err = errors.New("text")
 	if err != nil {
 		deviceStatus = entity.Offline
-		fmt.Printf(check.HealthErrorCannotConnectToServer("ICMP", err.Error()).Error())
+		logs.Gateway().Error(fmt.Sprintf(check.HealthErrorCannotConnectToServer("ICMP", err.Error()).Error()))
 		return
 	}
 
 	pinger.Count = 1
 	pinger.Timeout = 2000000000
 	pinger.OnRecv = func(pkt *ping.Packet) {
-		fmt.Printf("%d bytes from %s: icmp_seq=%d time=%v\n",
-			pkt.Nbytes, pkt.IPAddr, pkt.Seq, time.Now())
+		logs.Gateway().Info(fmt.Sprintf("%d bytes from %s: icmp_seq=%d time=%v\n",
+			pkt.Nbytes, pkt.IPAddr, pkt.Seq, time.Now()))
 	}
 
 	pinger.OnFinish = func(stats *ping.Statistics) {
@@ -38,15 +39,15 @@ func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus e
 			deviceStatus = entity.Loaded
 		}
 
-		fmt.Printf("\tround-trip min/avg/max/stddev = %v/%v/%v/%v\n",
-			stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt)
+		logs.Gateway().Info(fmt.Sprintf("\tround-trip min/avg/max/stddev = %v/%v/%v/%v\n",
+			stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt))
 	}
 
-	fmt.Printf("\nPING %s (%s):", pinger.Addr(), pinger.IPAddr())
+	logs.Gateway().Info(fmt.Sprintf("\nPING %s (%s):", pinger.Addr(), pinger.IPAddr()))
 	err = pinger.Run()
 	if err != nil {
 		deviceStatus = entity.Offline
-		fmt.Printf(check.HealthErrorServerError(err.Error()).Error())
+		logs.Gateway().Error(fmt.Sprintf(check.HealthErrorServerError(err.Error()).Error()))
 		return
 	}
 
