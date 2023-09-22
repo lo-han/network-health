@@ -3,6 +3,7 @@ package check
 import (
 	device "network-health/core/entity/device"
 	"network-health/core/entity/device_store"
+	time_usecase "network-health/core/usecases/time"
 	"testing"
 )
 
@@ -45,17 +46,17 @@ func Test_CheckUsecase_Check(t *testing.T) {
 	}{
 		{
 			name:   "Succesfull online status check",
-			conn:   NewConnectivity(connHandlerOnlineMock{}),
+			conn:   NewConnectivity(connHandlerOnlineMock{}, &time_usecase.GoTime{}),
 			status: "ONLINE",
 		},
 		{
 			name:   "Succesfull offline status check",
-			conn:   NewConnectivity(connHandlerOfflineMock{}),
+			conn:   NewConnectivity(connHandlerOfflineMock{}, &time_usecase.GoTime{}),
 			status: "OFFLINE",
 		},
 		{
 			name:   "Succesfull loeaded status check",
-			conn:   NewConnectivity(connHandlerLoadedMock{}),
+			conn:   NewConnectivity(connHandlerLoadedMock{}, &time_usecase.GoTime{}),
 			status: "LOADED",
 		},
 	}

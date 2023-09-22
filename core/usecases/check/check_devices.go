@@ -4,16 +4,18 @@ import (
 	connect "network-health/core/entity/connectivity"
 	device "network-health/core/entity/device"
 	store "network-health/core/entity/device_store"
-	"time"
+	time_usecase "network-health/core/usecases/time"
 )
 
 type Connectivity struct {
 	handler connect.ConnectivityHandler
+	time    time_usecase.Time
 }
 
-func NewConnectivity(handler connect.ConnectivityHandler) *Connectivity {
+func NewConnectivity(handler connect.ConnectivityHandler, time time_usecase.Time) *Connectivity {
 	return &Connectivity{
 		handler: handler,
+		time:    time,
 	}
 }
 
@@ -34,7 +36,7 @@ func (conn *Connectivity) Check(store *store.DeviceStore) (response *DeviceStatu
 			Status:  mapStatusToString(device.Status()),
 		})
 
-		response.Datetime = time.Now()
+		response.Datetime = conn.time.Now()
 	}
 
 	return

@@ -46,9 +46,15 @@ func Test_RenameUsecase_Rename(t *testing.T) {
 
 			err := Rename(testCase.deviceStore, testCase.oldName, testCase.newName)
 
-			if err != nil {
-				if err.Error() != testCase.errExpected.Error() {
-					t.Errorf("Test_RenameUsecase_Rename() = %s, expected %s", err.Error(), testCase.errExpected.Error())
+			if err.UsecaseError() == nil {
+				if err.UsecaseError() != testCase.errExpected {
+					t.Error("Test_RenameUsecase_Rename() failed on success test case")
+				}
+			}
+
+			if err.UsecaseError() != nil {
+				if err.UsecaseError().Error() != testCase.errExpected.Error() {
+					t.Errorf("Test_RenameUsecase_Rename() = %s, expected %s", err.UsecaseError().Error(), testCase.errExpected.Error())
 				}
 			}
 		})
