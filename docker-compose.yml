@@ -1,0 +1,6 @@
+version: '2'
+
+services:
+  network-health-v1:
+    build: .
+    image: lo-han/network-health:latest
