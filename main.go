@@ -25,8 +25,8 @@ import (
 )
 
 var (
-	port      = kingpin.Flag("port", "Server's port").Short('p').Default("8080").Envar("SERVER_PORT").Int()
-	devicesIP = kingpin.Flag("ip", "Devices IP").Short('a').Required().Envar("DEVICES_IP").Strings()
+	port             = kingpin.Flag("port", "Server's port").Short('p').Default("8080").Envar("SERVER_PORT").Int()
+	devicesAddresses = kingpin.Flag("address", "Devices addresses").Short('a').Required().Envar("DEVICES_ADDRS").Strings()
 )
 
 func main() {
@@ -46,7 +46,7 @@ func main() {
 
 	var devices []*device.Device
 
-	for _, deviceIP := range *devicesIP {
+	for _, deviceIP := range *devicesAddresses {
 		ipv4Address, err := ipv4.NewIPv4Address(deviceIP)
 		if err != nil {
 			logs.Gateway().Fatal(fmt.Sprintf("Error initializing app: invalid ip address '%s", deviceIP))

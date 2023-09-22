@@ -23,7 +23,7 @@ func NewController(store *store.DeviceStore, time time_usecase.Time) *Controller
 	}
 }
 
-func (controller *Controller) Check(handler connect.ConnectivityHandler) (response *ControllerResponse, err error) {
+func (controller *Controller) Check(handler connect.ConnectionHandler) (response *ControllerResponse, err error) {
 	var status *check_usecase.DeviceStatus
 	connection := check_usecase.NewConnectivity(handler, controller.time)
 
