@@ -8,11 +8,11 @@ import (
 )
 
 type Connectivity struct {
-	handler connect.ConnectivityHandler
+	handler connect.ConnectionHandler
 	time    time_usecase.Time
 }
 
-func NewConnectivity(handler connect.ConnectivityHandler, time time_usecase.Time) *Connectivity {
+func NewConnectivity(handler connect.ConnectionHandler, time time_usecase.Time) *Connectivity {
 	return &Connectivity{
 		handler: handler,
 		time:    time,

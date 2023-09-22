@@ -2,6 +2,6 @@ package entity
 
 import "network-health/core/entity/device"
 
-type ConnectivityHandler interface {
+type ConnectionHandler interface {
 	PingDevice(device *device.Device) device.Status
 }
