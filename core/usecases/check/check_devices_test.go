@@ -1,11 +1,31 @@
 package check
 
 import (
-	device "network-health/core/entity/device"
+	"context"
+	"errors"
+	"network-health/core/entity/connectivity"
+	device_entity "network-health/core/entity/device"
 	"network-health/core/entity/device_store"
+	"network-health/core/entity/logs"
 	time_usecase "network-health/core/usecases/time"
 	"testing"
 )
+
+type mockLogger struct {
+}
+
+func (logger *mockLogger) Context(ctx context.Context) logs.Logger {
+	return &mockLogger{}
+}
+
+func (logger *mockLogger) Error(message string) {
+}
+
+func (logger *mockLogger) Fatal(message string) {
+}
+
+func (logger *mockLogger) Info(message string) {
+}
 
 type mockAddress struct{}
 
@@ -19,25 +39,32 @@ func (ip *mockAddress) Get() (address string) {
 
 type connHandlerOnlineMock struct{}
 
-func (connHandlerOnlineMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
-	return device.Online
+func (connHandlerOnlineMock) PingDevice(device *device_entity.Device) (stats connectivity.ConnectionStats, err error) {
+	stats.PacketsSent = 1
+	stats.PacketsRecv = 1
+	return
 }
 
 type connHandlerOfflineMock struct{}
 
-func (connHandlerOfflineMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
-	return device.Offline
+func (connHandlerOfflineMock) PingDevice(device *device_entity.Device) (stats connectivity.ConnectionStats, err error) {
+	err = errors.New("text")
+	return
 }
 
 type connHandlerLoadedMock struct{}
 
-func (connHandlerLoadedMock) PingDevice(dev *device.Device) (deviceStatus device.Status) {
-	return device.Loaded
+func (connHandlerLoadedMock) PingDevice(device *device_entity.Device) (stats connectivity.ConnectionStats, err error) {
+	stats.PacketsSent = 1
+	stats.PacketsRecv = 0
+	return
 }
 
 func Test_CheckUsecase_Check(t *testing.T) {
-	device_1 := device.NewDevice(&mockAddress{}, "1")
+	device_1 := device_entity.NewDevice(&mockAddress{}, "1")
 	deviceStoreTest, _ := device_store.NewDeviceStore(device_1)
+
+	logs.SetLogger(&mockLogger{})
 
 	testCases := []struct {
 		name   string

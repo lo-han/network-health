@@ -1,11 +1,9 @@
 package icmp
 
 import (
-	"fmt"
+	"network-health/core/entity/connectivity"
 	entity "network-health/core/entity/device"
-	"network-health/core/entity/logs"
 	"network-health/core/usecases/check"
-	"time"
 
 	"github.com/go-ping/ping"
 )
@@ -16,36 +14,32 @@ func NewICMPConnectivityHandler() *ICMPConnectivityHandler {
 	return &ICMPConnectivityHandler{}
 }
 
-func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (deviceStatus entity.Status) {
+func (ICMPConnectivityHandler) PingDevice(device *entity.Device) (stats connectivity.ConnectionStats, err error) {
 	pinger, err := ping.NewPinger(device.Address())
 
 	if err != nil {
-		deviceStatus = entity.Offline
-		logs.Gateway().Error(fmt.Sprintf(check.HealthErrorCannotConnectToServer("ICMP", err.Error()).Error()))
+		err = check.HealthErrorCannotConnectToServer("ICMP", err.Error())
 		return
 	}
 
 	pinger.Count = 1
 	pinger.Timeout = 2000000000
 	pinger.OnRecv = func(pkt *ping.Packet) {
-		logs.Gateway().Info(fmt.Sprintf("%d bytes from %s: icmp_seq=%d time=%v\n",
-			pkt.Nbytes, pkt.IPAddr, pkt.Seq, time.Now()))
+		stats.NBytes = pkt.Nbytes
 	}
 
-	pinger.OnFinish = func(stats *ping.Statistics) {
-		if stats.PacketsSent != stats.PacketsRecv {
-			deviceStatus = entity.Loaded
-		}
-
-		logs.Gateway().Info(fmt.Sprintf("\tround-trip min/avg/max/stddev = %v/%v/%v/%v\n",
-			stats.MinRtt, stats.AvgRtt, stats.MaxRtt, stats.StdDevRtt))
+	pinger.OnFinish = func(statistics *ping.Statistics) {
+		stats.PacketsSent = statistics.PacketsSent
+		stats.PacketsRecv = statistics.PacketsRecv
+		stats.MaxLatency = statistics.MaxRtt
+		stats.MinLatency = statistics.MinRtt
+		stats.AvgLatency = statistics.AvgRtt
+		stats.StdDeviation = statistics.StdDevRtt
 	}
 
-	logs.Gateway().Info(fmt.Sprintf("PING %s (%s):", pinger.Addr(), pinger.IPAddr()))
 	err = pinger.Run()
 	if err != nil {
-		deviceStatus = entity.Offline
-		logs.Gateway().Error(fmt.Sprintf(check.HealthErrorServerError(err.Error()).Error()))
+		err = check.HealthErrorServerError(err.Error())
 		return
 	}
 
