@@ -8,9 +8,9 @@ type Address interface {
 }
 
 const (
-	Online Status = iota
-	Offline
+	Offline Status = iota
 	Loaded
+	Online
 )
 
 type Device struct {
