@@ -26,7 +26,7 @@ func (conn *Connectivity) Check(store *store.DeviceStore) (response *DeviceStatu
 	devices := store.IterateDevices()
 
 	for _, device := range devices.List() {
-		status = conn.handler.PingDevice(device)
+		status = connect.Connect(conn.handler, device)
 
 		device.SetStatus(status)
 
