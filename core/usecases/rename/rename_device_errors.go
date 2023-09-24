@@ -35,7 +35,7 @@ func (stack *RenameUsecaseErrorStack) UsecaseError() (err error) {
 
 func (stack *RenameUsecaseErrorStack) EntityError() (err error) {
 	if stack.HasError() {
-		return stack.errors[len(stack.errors)-2]
+		return stack.errors[0]
 	}
 	return
 }
