@@ -22,19 +22,19 @@ type ConnectionHandler interface {
 }
 
 func Connect(connection ConnectionHandler, device *device_entity.Device) (deviceStatus device_entity.Status) {
-	logs.Gateway().Info(fmt.Sprintf("PING %s\n", device.Address()))
+	logs.Gateway().Info(fmt.Sprintf("PING %s", device.Address()))
 
 	stats, err := connection.PingDevice(device)
 
-	logs.Gateway().Info(fmt.Sprintf("%d bytes from %s time=%v\n",
+	logs.Gateway().Info(fmt.Sprintf("%d bytes from %s time=%v",
 		stats.NBytes, device.Address(), time.Now()))
 
-	logs.Gateway().Info(fmt.Sprintf("\tround-trip min/avg/max/stddev = %v/%v/%v/%v\n",
+	logs.Gateway().Info(fmt.Sprintf("\tround-trip min/avg/max/stddev = %v/%v/%v/%v",
 		stats.MinLatency, stats.AvgLatency, stats.MaxLatency, stats.StdDeviation))
 
 	if err != nil {
 		deviceStatus = device_entity.Offline
-		logs.Gateway().Error(fmt.Sprintf("%s\n", err.Error()))
+		logs.Gateway().Error(fmt.Sprintf("%s", err.Error()))
 		return
 	}
 

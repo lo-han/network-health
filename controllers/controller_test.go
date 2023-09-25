@@ -1,35 +1,19 @@
 package controllers
 
 import (
-	"context"
 	"network-health/core/entity/connectivity"
 	device "network-health/core/entity/device"
 	"network-health/core/entity/device_store"
 	"network-health/core/entity/logs"
 	"network-health/core/usecases/check"
 	"network-health/core/usecases/rename"
+	"network-health/infra/mocks"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/fatih/structs"
 )
-
-type mockLogger struct {
-}
-
-func (logger *mockLogger) Context(ctx context.Context) logs.Logger {
-	return &mockLogger{}
-}
-
-func (logger *mockLogger) Error(message string) {
-}
-
-func (logger *mockLogger) Fatal(message string) {
-}
-
-func (logger *mockLogger) Info(message string) {
-}
 
 type timeMock struct {
 	now time.Time
@@ -64,7 +48,7 @@ func (connHandlerMock) PingDevice(device *device.Device) (stats connectivity.Con
 }
 
 func Test_Controller_Check(t *testing.T) {
-	logs.SetLogger(&mockLogger{})
+	logs.SetLogger(&mocks.MockLogger{})
 	timeNow := newTimeMock()
 	deviceStoreTest, _ := device_store.NewDeviceStore(device.NewDevice(&mockAddress{}, "device"))
 	content := structs.Map(check.DeviceStatus{

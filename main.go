@@ -78,6 +78,6 @@ func main() {
 	})
 
 	if err := g.Wait(); err != nil {
-		logs.Gateway().Fatal(fmt.Sprintf("exit reason: %s \n", err))
+		logs.Gateway().Fatal(fmt.Sprintf("exit reason: %s", err))
 	}
 }
