@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	connect "network-health/core/entity/connectivity"
 	"network-health/core/entity/device_store"
 	store "network-health/core/entity/device_store"
+	"network-health/core/entity/logs"
 	check_usecase "network-health/core/usecases/check"
 	rename_usecase "network-health/core/usecases/rename"
 	time_usecase "network-health/core/usecases/time"
@@ -27,6 +29,7 @@ func (controller *Controller) Check(handler connect.ConnectionHandler) (response
 	var status *check_usecase.DeviceStatus
 	connection := check_usecase.NewConnectivity(handler, controller.time)
 
+	logs.Gateway().Info("Checking devices...")
 	status = connection.Check(controller.store)
 
 	response = NewControllerResponse(NetStatOK, structs.Map(status))
@@ -35,6 +38,8 @@ func (controller *Controller) Check(handler connect.ConnectionHandler) (response
 }
 
 func (controller *Controller) Rename(oldName, newName string) (response *ControllerResponse, err error) {
+	logs.Gateway().Info(fmt.Sprintf("Rename '%s' device to '%s'", oldName, newName))
+
 	errStack := rename_usecase.Rename(controller.store, oldName, newName)
 
 	if errStack.HasError() {
@@ -54,6 +59,7 @@ func (controller *Controller) Rename(oldName, newName string) (response *Control
 			break
 		}
 
+		logs.Gateway().Error(fmt.Sprintf("%s", err.Error()))
 		return
 	}
 

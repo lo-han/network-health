@@ -1,12 +1,15 @@
 package logs
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type Logger interface {
 	Context(ctx context.Context) Logger
-	Error(message string)
-	Fatal(message string)
-	Info(message string)
+	Error(message string) time.Time
+	Fatal(message string) time.Time
+	Info(message string) time.Time
 }
 
 var loggerGateway Logger = nil

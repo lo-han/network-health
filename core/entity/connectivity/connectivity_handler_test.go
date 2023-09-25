@@ -1,28 +1,12 @@
 package connectivity
 
 import (
-	"context"
 	"errors"
 	device_entity "network-health/core/entity/device"
 	"network-health/core/entity/logs"
+	"network-health/infra/mocks"
 	"testing"
 )
-
-type mockLogger struct {
-}
-
-func (logger *mockLogger) Context(ctx context.Context) logs.Logger {
-	return &mockLogger{}
-}
-
-func (logger *mockLogger) Error(message string) {
-}
-
-func (logger *mockLogger) Fatal(message string) {
-}
-
-func (logger *mockLogger) Info(message string) {
-}
 
 type mockAddress struct{}
 
@@ -60,7 +44,7 @@ func (connHandlerLoadedMock) PingDevice(device *device_entity.Device) (stats Con
 func Test_Connect(t *testing.T) {
 	device_1 := device_entity.NewDevice(&mockAddress{}, "1")
 
-	logs.SetLogger(&mockLogger{})
+	logs.SetLogger(&mocks.MockLogger{})
 
 	testCases := []struct {
 		name    string
