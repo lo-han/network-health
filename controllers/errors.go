@@ -1,5 +1,10 @@
 package controllers
 
+import (
+	"encoding/json"
+	"network-health/core/usecases/check"
+)
+
 var (
 	NetStatOK                 = "NETSTAT_200"
 	NetStatNoContent          = "NETSTAT_204"
@@ -13,9 +18,21 @@ type ControllerResponse struct {
 	Content map[string]interface{} `json:"content"`
 }
 
-func NewControllerResponse(code string, content map[string]interface{}) *ControllerResponse {
+func NewControllerResponse(code string, content *check.DeviceStatus) *ControllerResponse {
+	bytes, _ := json.Marshal(content)
+
+	m := make(map[string]interface{})
+	_ = json.Unmarshal(bytes, &m)
+
 	return &ControllerResponse{
-		Content: content,
+		Content: m,
+		Code:    code,
+	}
+}
+
+func NewControllerEmptyResponse(code string) *ControllerResponse {
+	return &ControllerResponse{
+		Content: map[string]interface{}{},
 		Code:    code,
 	}
 }

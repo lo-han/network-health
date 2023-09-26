@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.3.2
-	github.com/fatih/structs v1.1.0
 	github.com/go-ping/ping v1.1.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/kataras/iris/v12 v12.2.0-beta6
@@ -22,6 +21,7 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2/v4 v4.0.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect

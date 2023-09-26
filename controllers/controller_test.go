@@ -11,8 +11,6 @@ import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/fatih/structs"
 )
 
 type timeMock struct {
@@ -51,16 +49,6 @@ func Test_Controller_Check(t *testing.T) {
 	logs.SetLogger(&mocks.MockLogger{})
 	timeNow := newTimeMock()
 	deviceStoreTest, _ := device_store.NewDeviceStore(device.NewDevice(&mockAddress{}, "device"))
-	content := structs.Map(check.DeviceStatus{
-		Devices: []check.Device{
-			{
-				Name:    "device",
-				Address: "address",
-				Status:  "ONLINE",
-			},
-		},
-		Datetime: timeNow.Now(),
-	})
 
 	testCases := []struct {
 		name       string
@@ -72,7 +60,16 @@ func Test_Controller_Check(t *testing.T) {
 			controller: NewController(deviceStoreTest, timeNow),
 			response: NewControllerResponse(
 				NetStatOK,
-				content,
+				&check.DeviceStatus{
+					Devices: []check.Device{
+						{
+							Name:    "device",
+							Address: "address",
+							Status:  "ONLINE",
+						},
+					},
+					Datetime: timeNow.Now(),
+				},
 			),
 		},
 	}
@@ -107,9 +104,8 @@ func Test_Controller_Rename(t *testing.T) {
 			name:    "Succesfull rename",
 			oldName: "device",
 			newName: "new_device",
-			response: NewControllerResponse(
+			response: NewControllerEmptyResponse(
 				NetStatNoContent,
-				map[string]interface{}{},
 			),
 			err: nil,
 		},

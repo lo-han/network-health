@@ -9,8 +9,6 @@ import (
 	check_usecase "network-health/core/usecases/check"
 	rename_usecase "network-health/core/usecases/rename"
 	time_usecase "network-health/core/usecases/time"
-
-	"github.com/fatih/structs"
 )
 
 type Controller struct {
@@ -32,7 +30,7 @@ func (controller *Controller) Check(handler connect.ConnectionHandler) (response
 	logs.Gateway().Info("Checking devices...")
 	status = connection.Check(controller.store)
 
-	response = NewControllerResponse(NetStatOK, structs.Map(status))
+	response = NewControllerResponse(NetStatOK, status)
 
 	return
 }
@@ -63,7 +61,7 @@ func (controller *Controller) Rename(oldName, newName string) (response *Control
 		return
 	}
 
-	response = NewControllerResponse(NetStatNoContent, map[string]interface{}{})
+	response = NewControllerEmptyResponse(NetStatNoContent)
 
 	return
 }
